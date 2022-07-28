@@ -24,7 +24,103 @@
   margin: auto;
 }
 
+.btn {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--main-color);
+  background-color: white;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.5s ease;
+}
+
 .header {
-  padding: 1.5rem;
-  height: 90px;
+  padding: 0.5rem 1.5rem;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.8rem;
+}
+
+.main {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.section__cars_constructor {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.cars_constructor {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section__cars-maintain {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.section__garage-headers {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.garage-page-header {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 2.3rem;
+}
+
+.page-header {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.car_wrapper {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.car {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  border-bottom: 3px dashed var(--main-color);
+  margin-bottom: 0.6rem;
+}
+
+.car-controllers {
+  padding: 0.4rem 0 0.6rem;
+  display: flex;
+  gap: 0.8rem;
+}
+
+.car-img {
+  width: 6rem;
+  margin: 1rem 1.5rem 0;
+}
+
+.car-input_text {
+  height: 1.6rem;
+}
+
+.car-flag {
+  margin-left: auto;
+  margin-right: 10rem;
+  margin-top: 0.8rem;
 }
