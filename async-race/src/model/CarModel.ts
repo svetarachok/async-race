@@ -16,6 +16,15 @@ enum Paths {
 }
 
 export class CarModel {
+
+  async getCars(page: number, limit: number) {
+    const res = await fetch(`${URL}${Paths.garage}?_page=${page}_limit=${limit}`);
+    return {
+      cars: res.json(),
+      carsCounter: res.headers.get('X-Total-Count')
+    }
+  }
+
   async createCar(body: CarInterface) {
     const res = await fetch(`${URL}${Paths.garage}`, {
       method: HTTPMethods.post,
