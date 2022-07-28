@@ -1,23 +1,23 @@
-export class ManageCarBtn {
-  public elem: HTMLButtonElement;
+// export class ManageCarBtn {
+//   public elem: HTMLButtonElement;
 
-  constructor(id: string) {
-    this.elem = document.createElement('button');
-    this.elem.classList.add('btn');
-    this.elem.id = id
-  }
+//   constructor(controllerName: string) {
+//     this.elem = document.createElement('button');
+//     this.elem.classList.add('btn');
+//     this.elem.id = `${controllerName}-car-btn`;
+//   }
 
-  stateHandler(manageCar: () => void) {
-    this.elem.addEventListener('click', manageCar)
-  }
+//   stateHandler(manageCar: () => void) {
+//     this.elem.addEventListener('click', manageCar);
+//   }
 
-  // handleEvent() {
-  //   console.log('Car Deleted');
-  // }
-}
+//   // handleEvent() {
+//   //   console.log('Car Deleted');
+//   // }
+// }
 
-//start engine 
+// start engine
 
-//stop engine
+// stop engine
 
-//race
+// race

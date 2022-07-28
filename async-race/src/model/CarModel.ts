@@ -1,57 +1,54 @@
-
-import { CarInterface } from "./ts-interfaces";
+import { CarInterface } from './ts-interfaces';
 
 const URL: string = '';
-const HEADER_JSON_DATA = {'Content-Type' : 'application/json'};
+const HEADER_JSON_DATA = { 'Content-Type': 'application/json' };
 
 enum HTTPMethods {
-  get = "GET",
+  get = 'GET',
   post = 'POST',
   changeAll = 'PUT',
   chagePart = 'PATCH',
-  delete = 'DELETE'
+  delete = 'DELETE',
 }
 
 enum Paths {
-  garage = '/garage'
+  garage = '/garage',
 }
 
-
 export class CarModel {
-  async createCar(body: CarInterface): Promise<CarInterface> {
+  async createCar(body: CarInterface) {
     const res = await fetch(`${URL}${Paths.garage}`, {
       method: HTTPMethods.post,
       headers: HEADER_JSON_DATA,
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
     const data = await res.json();
-    return data;
+    console.log(data);
   }
 
-  async getCar(id: number): Promise<CarInterface> {
+  async getCar(id: number) {
     const res = await fetch(`${URL}${Paths.garage}:${id}`, {
-      method: HTTPMethods.get
+      method: HTTPMethods.get,
     });
     const data = await res.json();
-    return data;
+    console.log(data);
   }
 
-  async updateCar(id: number, body: CarInterface): Promise<CarInterface> {
+  async updateCar(id: number, body: CarInterface) {
     const res = await fetch(`${URL}${Paths.garage}:${id}`, {
       method: HTTPMethods.changeAll,
       headers: HEADER_JSON_DATA,
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
     const data = await res.json();
-    return data;
+    console.log(data);
   }
 
-  async deleteCar(id: number): Promise<{}> {
+  async deleteCar(id: number) {
     const res = await fetch(`${URL}${Paths.garage}:${id}`, {
-      method: HTTPMethods.delete
+      method: HTTPMethods.delete,
     });
     const data = await res.json();
-    return data;
+    console.log(data);
   }
-
 }
