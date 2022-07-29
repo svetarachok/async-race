@@ -1,6 +1,6 @@
 import { CarInterface } from './ts-interfaces';
 
-const URL: string = '';
+const URL: string = 'http://127.0.0.1:3000';
 const HEADER_JSON_DATA = { 'Content-Type': 'application/json' };
 
 enum HTTPMethods {
@@ -16,13 +16,13 @@ enum Paths {
 }
 
 export class CarModel {
-
-  async getCars(page: number, limit: number) {
-    const res = await fetch(`${URL}${Paths.garage}?_page=${page}_limit=${limit}`);
+  async getCars(page?: number, limit?: number):
+  Promise<{ cars: CarInterface[]; carsCounter: string }> {
+    const res = await fetch(`${URL}${Paths.garage}?_page=${page}&_limit=${limit}`);
     return {
-      cars: res.json(),
-      carsCounter: res.headers.get('X-Total-Count')
-    }
+      cars: await res.json(),
+      carsCounter: res.headers.get('X-Total-Count') as string,
+    };
   }
 
   async createCar(body: CarInterface) {
@@ -32,7 +32,7 @@ export class CarModel {
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    console.log(data);
+    return data;
   }
 
   async getCar(id: number) {
@@ -54,10 +54,10 @@ export class CarModel {
   }
 
   async deleteCar(id: number) {
-    const res = await fetch(`${URL}${Paths.garage}:${id}`, {
+    const res = await fetch(`${URL}${Paths.garage}/${id}`, {
       method: HTTPMethods.delete,
     });
     const data = await res.json();
-    console.log(data);
+    return data;
   }
 }

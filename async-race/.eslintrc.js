@@ -21,6 +21,7 @@ module.exports = {
       "no-console": 0,
       "class-methods-use-this": "off",
       "@typescript-eslint/no-explicit-any": 2,
-      "@typescript-eslint/no-inferrable-types": 0
+      "@typescript-eslint/no-inferrable-types": 0,
+      "import/prefer-default-export": "off"
   }
 }

@@ -1,23 +1,27 @@
-import { CarInterface } from '../model/ts-interfaces'
+import { CarInterface } from '../model/ts-interfaces';
 
 export class CarUI {
   elem: HTMLDivElement;
+
   id: number | undefined;
+
   name: string;
+
   color: string;
 
-  constructor({id, name, color}: CarInterface) {
+  constructor({ name, color, id }: CarInterface) {
+    this.name = name;
+    this.color = color;
+    this.id = id;
     this.elem = document.createElement('div');
     this.elem.classList.add('car');
-    this.elem.id = id.toString();
-    this.name = name;
-    this.color = color
+    this.elem.id = String(this.id);
   }
 
   draw() {
     const template = `<div class="cars_constructor">
       <button id="select-car-btn" class="btn">Select</button>
-      <button id="delete-car-btn" class="btn">Delete</button>
+      <button id="delete-car-btn-${this.id}" class="btn delete-btn">Delete</button>
       <h2 class="car-name" id="car-name">${this.name}</h2>
     </div>
     <div class="car_wrapper">
@@ -33,8 +37,8 @@ export class CarUI {
           </svg>
       </div>
       <div class="car-flag">FLAG</div>
-    </div>`
-    this.elem.append(template);
+    </div>`;
+    this.elem.innerHTML = template;
     return this.elem;
   }
 }

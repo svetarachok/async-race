@@ -1,6 +1,5 @@
-import { CarInterface } from "../model/ts-interfaces";
-import { CarUI } from "./CarUI";
-
+import { CarInterface } from '../model/ts-interfaces';
+import { CarUI } from './CarUI';
 
 export class GaragePageUI {
   elem: HTMLElement;
@@ -11,8 +10,8 @@ export class GaragePageUI {
     this.elem.id = 'garage';
   }
 
-  draw() {
-    const template = `<section class="section__cars_constructor">
+  draw(carsCounter: string) {
+    const template: string = `<section class="section__cars_constructor">
       <div class="cars_constructor">
         <input type="text" name="create-car-input_text" id="create-car-input_text" class="car-input_text">
         <input type="color" name="create-car-input_color" id="create-car-input_color" class="car-input_color">
@@ -31,7 +30,7 @@ export class GaragePageUI {
     </section>
     <section class="section__garage">
       <div class="section__garage-headers">
-        <h1 class="garage-page-header">Garage (4)</h1>
+        <h1 class="garage-page-header">Garage (${carsCounter})</h1>
         <p class="page-header">Page 1</p>
       </div>
       <div class="cars-container">
@@ -39,15 +38,16 @@ export class GaragePageUI {
         </div>
         <div class="pagination"></div>
       </div>
-    </section>`
-    this.elem.append(template);
+    </section>`;
+    this.elem.innerHTML = template;
     return this.elem;
   }
+
   drawCars(cars: CarInterface[]) {
-    const container: HTMLElement = <HTMLElement>document.querySelector('cars-track');
-    cars.forEach(car => {
-      let carTemplate = new CarUI(car);
-      container.append(carTemplate.draw());
+    const container: HTMLElement = <HTMLElement>document.querySelector('.cars-track');
+    cars.forEach((car) => {
+      const carTemplate = new CarUI(car).draw();
+      container.append(carTemplate);
     });
   }
 }
