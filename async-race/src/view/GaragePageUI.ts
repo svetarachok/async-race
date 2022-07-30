@@ -10,7 +10,7 @@ export class GaragePageUI {
 
   pageTitle: HTMLElement;
 
-  createCarForm: HTMLFormElement;
+  createCarForm: HTMLDivElement;
 
   createCarTextInput: HTMLInputElement;
 
@@ -18,7 +18,7 @@ export class GaragePageUI {
 
   createCarBtn: HTMLButtonElement;
 
-  updateCarForm: HTMLFormElement;
+  updateCarForm: HTMLDivElement;
 
   updateCartextInput: HTMLInputElement;
 
@@ -28,11 +28,13 @@ export class GaragePageUI {
 
   static carStorage: CarInterface[] = [];
 
+  static carToUpdateId: number = 0;
+
   constructor() {
     this.elem = this.createElement('main', 'main');
     this.elem.classList.add('main');
     this.elem.id = 'garage';
-    this.createCarForm = this.createElement('div', 'cars_constructor', 'create-form') as HTMLFormElement;
+    this.createCarForm = this.createElement('div', 'cars_constructor', 'create-form') as HTMLDivElement;
     this.createCarTextInput = <HTMLInputElement> this.createElement('input');
     this.createCarTextInput.type = 'text';
     this.createCarColorInput = <HTMLInputElement> this.createElement('input');
@@ -44,7 +46,7 @@ export class GaragePageUI {
       this.createCarColorInput,
       this.createCarBtn,
     );
-    this.updateCarForm = this.createElement('from', 'cars_constructor', 'create-form') as HTMLFormElement;
+    this.updateCarForm = this.createElement('div', 'cars_constructor', 'update-form') as HTMLDivElement;
     this.updateCartextInput = <HTMLInputElement> this.createElement('input');
     this.updateCartextInput.type = 'text';
     this.updateCarcolorInput = <HTMLInputElement> this.createElement('input');
@@ -116,23 +118,34 @@ export class GaragePageUI {
   }
 
   selectCar() {
-    let res: string = '';
     this.carsTrack.addEventListener('click', (event: Event) => {
       const target: HTMLElement = <HTMLElement>event.target;
       if (target.textContent === 'Select') {
         const targetId: string = target.id.split('-')[3];
         const targetCar = GaragePageUI.carStorage.filter((car) => car.id === Number(targetId));
-        res = targetCar[0].name;
-        this.updateCartextInput.value = res;
+        this.updateCartextInput.value = targetCar[0].name;
+        this.updateCarcolorInput.value = targetCar[0].color;
+        if (targetCar[0].id) {
+          GaragePageUI.carToUpdateId = targetCar[0].id;
+        }
         console.log(this.updateCartextInput);
       }
     });
     return this.updateCartextInput;
   }
 
-  listenUpdateCar() {
+  listenUpdateCar(handler: (id: number, body: CarInterface) => void) {
     this.updateCarBtn.addEventListener('click', (event) => {
       event.preventDefault();
+
+      console.log(this.updateCartextInput.value, this.updateCarcolorInput.value);
+      if (this.updateCartextInput && this.updateCarcolorInput) {
+        const inputText = this.updateCartextInput.value;
+        const inputColor = this.updateCarcolorInput.value;
+        handler(GaragePageUI.carToUpdateId, { name: inputText, color: inputColor });
+      }
+      this.updateCartextInput.value = '';
+      this.updateCarcolorInput.value = '#000000';
     });
   }
 

@@ -36,7 +36,7 @@ export class CarModel {
   }
 
   async getCar(id: number) {
-    const res = await fetch(`${URL}${Paths.garage}:${id}`, {
+    const res = await fetch(`${URL}${Paths.garage}/${id}`, {
       method: HTTPMethods.get,
     });
     const data = await res.json();
@@ -44,7 +44,7 @@ export class CarModel {
   }
 
   async updateCar(id: number, body: CarInterface) {
-    const res = await fetch(`${URL}${Paths.garage}:${id}`, {
+    const res = await fetch(`${URL}${Paths.garage}/${id}`, {
       method: HTTPMethods.changeAll,
       headers: HEADER_JSON_DATA,
       body: JSON.stringify(body),

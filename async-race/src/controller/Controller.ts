@@ -9,12 +9,13 @@ export class Controller {
 
   constructor() {
     this.handleCreateCar = this.handleCreateCar.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
+    this.handleDeleteCar = this.handleDeleteCar.bind(this);
     this.handleUpdateCar = this.handleUpdateCar.bind(this);
     this.model = new CarModel();
     this.view = new GaragePageUI();
     this.view.listenCreateCar(this.handleCreateCar);
-    this.view.listenDeleteCar(this.handleDelete);
+    this.view.listenUpdateCar(this.handleUpdateCar);
+    this.view.listenDeleteCar(this.handleDeleteCar);
   }
 
   async initGarage() {
@@ -37,7 +38,7 @@ export class Controller {
     return data;
   }
 
-  async handleDelete(id: string) {
+  async handleDeleteCar(id: string) {
     const data: CarInterface = await this.model.deleteCar(Number(id));
     this.updateGarage();
     return data;
