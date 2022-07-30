@@ -1,53 +1,50 @@
 import { CarModel } from '../model/CarModel';
 import { GaragePageUI } from '../view/GaragePageUI';
 import { CarInterface } from '../model/ts-interfaces';
-import { CarUI } from '../view/CarUI';
 
 export class Controller {
   model: CarModel;
 
   view: GaragePageUI;
 
-  constructor(model: CarModel, view: GaragePageUI) {
-    this.model = model;
-    this.view = view;
+  constructor() {
+    this.handleCreateCar = this.handleCreateCar.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+    this.handleUpdateCar = this.handleUpdateCar.bind(this);
+    this.model = new CarModel();
+    this.view = new GaragePageUI();
+    this.view.listenCreateCar(this.handleCreateCar);
+    this.view.listenDeleteCar(this.handleDelete);
   }
 
   async initGarage() {
     const { cars, carsCounter } = await this.model.getCars();
-    document.body.append(this.view.draw(carsCounter));
+    document.body.append(this.view.drawGarage(carsCounter));
     this.view.drawCars(cars);
-    this.linkHandles();
   }
 
-  linkHandles() {
-    this.handleCreate = this.handleCreate.bind(this);
-    const createBtn: HTMLButtonElement = <HTMLButtonElement>document.getElementById('create-car-btn');
-    createBtn.addEventListener('click', this.handleCreate);
-
-    const deleteBtns = document.querySelectorAll<HTMLButtonElement>('.delete-btn');
-    deleteBtns.forEach((btn) => btn.addEventListener('click', (e: Event) => {
-      const target: HTMLElement = e.target as HTMLElement;
-      const id: string = <string>target.id.split('-').filter((num) => Number(num)).join();
-      this.handleDelete(id);
-    }));
-  }
-
-  async handleCreate() {
-    const textInput: HTMLInputElement = <HTMLInputElement>document.getElementById('create-car-input_text');
-    const colorInput: HTMLInputElement = <HTMLInputElement>document.getElementById('create-car-input_color');
-    const newName: string = textInput.value;
-    const newColor: string = colorInput.value;
+  async handleCreateCar(newName: string, newColor: string) {
     const data: CarInterface = await this.model.createCar({ name: newName, color: newColor });
-    const carDrawer = new CarUI(data);
-    carDrawer.draw();
+    const { cars, carsCounter } = await this.model.getCars();
+    this.view.updateGarage(cars, carsCounter);
+    return data;
+  }
+
+  async handleUpdateCar(id: number, body: CarInterface) {
+    const data: CarInterface = await this.model.updateCar(id, body);
+    const { cars, carsCounter } = await this.model.getCars();
+    this.view.updateGarage(cars, carsCounter);
+    return data;
   }
 
   async handleDelete(id: string) {
-    const carElem: HTMLElement = <HTMLElement>document.getElementById(id);
     const data: CarInterface = await this.model.deleteCar(Number(id));
-    if (data) {
-      carElem.remove();
-    }
+    this.updateGarage();
+    return data;
+  }
+
+  private async updateGarage() {
+    const { cars, carsCounter } = await this.model.getCars();
+    this.view.updateGarage(cars, carsCounter);
   }
 }

@@ -20,9 +20,9 @@ export class CarUI {
 
   draw() {
     const template = `<div class="cars_constructor">
-      <button id="select-car-btn" class="btn">Select</button>
+      <button id="select-car-btn-${this.id}" class="btn">Select</button>
       <button id="delete-car-btn-${this.id}" class="btn delete-btn">Delete</button>
-      <h2 class="car-name" id="car-name">${this.name}</h2>
+      <h2 class="car-name">${this.name}</h2>
     </div>
     <div class="car_wrapper">
       <div class="car-controllers">
@@ -40,5 +40,16 @@ export class CarUI {
     </div>`;
     this.elem.innerHTML = template;
     return this.elem;
+  }
+
+  private createElement(element: string, elClass?: string, elId?: string) {
+    const elem: HTMLElement = document.createElement(element);
+    if (elClass) {
+      elem.classList.add(elClass);
+    }
+    if (elId) {
+      elem.id = elId;
+    }
+    return elem;
   }
 }

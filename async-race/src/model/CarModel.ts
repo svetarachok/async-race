@@ -25,7 +25,7 @@ export class CarModel {
     };
   }
 
-  async createCar(body: CarInterface) {
+  async createCar(body: CarInterface): Promise<CarInterface> {
     const res = await fetch(`${URL}${Paths.garage}`, {
       method: HTTPMethods.post,
       headers: HEADER_JSON_DATA,
@@ -50,7 +50,7 @@ export class CarModel {
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    console.log(data);
+    return data;
   }
 
   async deleteCar(id: number) {
