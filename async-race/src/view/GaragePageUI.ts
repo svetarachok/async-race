@@ -97,7 +97,9 @@ export class GaragePageUI {
     this.resetBtn.textContent = 'Reset';
     this.generateCarsBtn.textContent = 'Generate Cars';
     this.prevBtn.textContent = 'Prev';
+    this.prevBtn.disabled = true;
     this.nextBtn.textContent = 'Next';
+    this.nextBtn.disabled = false;
     this.createCarForm.append(
       this.createCarTextInput,
       this.createCarColorInput,
@@ -126,6 +128,17 @@ export class GaragePageUI {
     this.carsTrack.innerHTML = '';
     this.title.innerHTML = `Garage (${carsCounter})`;
     this.drawCars(cars);
+    const carsNumber = Number(carsCounter);
+    if (carsNumber > 8 && GaragePageUI.pageNumber < Math.ceil(carsNumber / 7)) {
+      this.nextBtn.disabled = false;
+    } else {
+      this.nextBtn.disabled = true;
+    }
+    if (GaragePageUI.pageNumber > 1) {
+      this.prevBtn.disabled = false;
+    } else {
+      this.prevBtn.disabled = true;
+    }
   }
 
   public drawCars(cars: CarInterface[]) {
