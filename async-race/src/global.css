@@ -65,11 +65,12 @@
   gap: 1rem;
 }
 
-.section__cars-maintain {
+.track-controllers {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   gap: 0.8rem;
+  margin-bottom: 1.5rem;
 }
 
 .section__garage-headers {
@@ -123,4 +124,10 @@
   margin-left: auto;
   margin-right: 10rem;
   margin-top: 0.8rem;
+}
+
+.pagination-section {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
 }

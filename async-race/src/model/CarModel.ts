@@ -16,7 +16,7 @@ enum Paths {
 }
 
 export class CarModel {
-  async getCars(page?: number, limit?: number):
+  async getCars(page?: number, limit: number = 7):
   Promise<{ cars: CarInterface[]; carsCounter: string }> {
     const res = await fetch(`${URL}${Paths.garage}?_page=${page}&_limit=${limit}`);
     return {
@@ -40,7 +40,7 @@ export class CarModel {
       method: HTTPMethods.get,
     });
     const data = await res.json();
-    console.log(data);
+    return data;
   }
 
   async updateCar(id: number, body: CarInterface) {
