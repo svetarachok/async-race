@@ -2,13 +2,14 @@ import { CarInterface } from '../model/ts-interfaces';
 import { CarUI } from './CarUI';
 import { carsPerPage, carNames } from '../components/constants';
 import { getRandomCarsData } from '../components/utils';
+import { WinnersUI } from './WinnersUI';
 
 export class GaragePageUI {
   elem: HTMLElement;
 
   carsTrack: HTMLElement;
 
-  title: HTMLElement;
+  garageHeader: HTMLElement;
 
   pageTitle: HTMLElement;
 
@@ -42,6 +43,10 @@ export class GaragePageUI {
 
   pagination: HTMLElement;
 
+  winners: WinnersUI;
+
+  winnersTable: HTMLElement;
+
   static carStorage: CarInterface[] = [];
 
   static carToUpdateId: number = 0;
@@ -70,13 +75,15 @@ export class GaragePageUI {
     this.raceBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'race-btn');
     this.resetBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'reset-btn');
     this.generateCarsBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'generate-cars-btn');
-    this.title = this.createElement('h1', 'garage-page-header');
-    this.pageTitle = <HTMLElement> this.createElement('p', 'page-header');
+    this.garageHeader = this.createElement('h1', 'page-header');
+    this.pageTitle = <HTMLElement> this.createElement('p', 'pages-header');
     this.pageTitle.innerHTML = `Page ${GaragePageUI.pageNumber}`;
     this.carsTrack = this.createElement('div', 'cars-track');
     this.pagination = this.createElement('div', 'pagination-section');
     this.prevBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'prev-btn');
     this.nextBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'prev-btn');
+    this.winners = new WinnersUI();
+    this.winnersTable = this.winners.drawWinnersTable();
     this.selectCar();
   }
 
@@ -92,14 +99,14 @@ export class GaragePageUI {
   }
 
   drawGarage(carsCounter: string) {
-    this.title.innerHTML = `Garage (${carsCounter})`;
+    this.garageHeader.innerHTML = `Garage (${carsCounter})`;
     this.raceBtn.textContent = 'Race';
     this.resetBtn.textContent = 'Reset';
     this.generateCarsBtn.textContent = 'Generate Cars';
     this.prevBtn.textContent = 'Prev';
     this.prevBtn.disabled = true;
     this.nextBtn.textContent = 'Next';
-    this.nextBtn.disabled = false;
+    this.nextBtn.disabled = true;
     this.createCarForm.append(
       this.createCarTextInput,
       this.createCarColorInput,
@@ -116,29 +123,19 @@ export class GaragePageUI {
       this.createCarForm,
       this.updateCarForm,
       this.trackControllers,
-      this.title,
+      this.garageHeader,
       this.pageTitle,
       this.carsTrack,
       this.pagination,
+      this.winnersTable,
     );
     return this.elem;
   }
 
   public updateGarageView(cars: CarInterface[], carsCounter: string) {
     this.carsTrack.innerHTML = '';
-    this.title.innerHTML = `Garage (${carsCounter})`;
+    this.garageHeader.innerHTML = `Garage (${carsCounter})`;
     this.drawCars(cars);
-    const carsNumber = Number(carsCounter);
-    if (carsNumber > 8 && GaragePageUI.pageNumber < Math.ceil(carsNumber / 7)) {
-      this.nextBtn.disabled = false;
-    } else {
-      this.nextBtn.disabled = true;
-    }
-    if (GaragePageUI.pageNumber > 1) {
-      this.prevBtn.disabled = false;
-    } else {
-      this.prevBtn.disabled = true;
-    }
   }
 
   public drawCars(cars: CarInterface[]) {
@@ -148,6 +145,17 @@ export class GaragePageUI {
       GaragePageUI.carStorage.push(carTemplate);
       this.carsTrack.append(carTemplate.draw());
     });
+    const carsNumber = Number(this.garageHeader.innerHTML.split(' ')[1].slice(1, -1));
+    if (carsNumber > 7 && GaragePageUI.pageNumber < Math.ceil(carsNumber / 7)) {
+      this.nextBtn.disabled = false;
+    } else {
+      this.nextBtn.disabled = true;
+    }
+    if (GaragePageUI.pageNumber > 1) {
+      this.prevBtn.disabled = false;
+    } else {
+      this.prevBtn.disabled = true;
+    }
   }
 
   public listenCreateCar(handler: (ar1: string, ar2: string, arg3: number) => void) {

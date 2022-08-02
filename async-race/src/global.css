@@ -79,13 +79,13 @@
   margin: 1rem 0;
 }
 
-.garage-page-header {
+.page-header {
   font-size: 2rem;
   font-weight: 700;
   line-height: 2.3rem;
 }
 
-.page-header {
+.pages-header {
   font-size: 1.3rem;
   font-weight: 700;
 }
@@ -130,4 +130,13 @@
   display: flex;
   gap: 1rem;
   padding-top: 1rem;
+}
+
+table, th, td {
+  border: 1px solid var(--main-color);
+}
+
+table {
+  border-collapse: collapse;
+  width: 40rem;
 }
