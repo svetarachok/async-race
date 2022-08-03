@@ -1,18 +1,17 @@
 import { CarInterface } from './ts-interfaces';
-
-const URL: string = 'http://127.0.0.1:3000';
-const HEADER_JSON_DATA = { 'Content-Type': 'application/json' };
+import { URL, HEADER_JSON_DATA } from '../components/constants';
 
 enum HTTPMethods {
   get = 'GET',
   post = 'POST',
   changeAll = 'PUT',
-  chagePart = 'PATCH',
+  changePart = 'PATCH',
   delete = 'DELETE',
 }
 
 enum Paths {
   garage = '/garage',
+  engine = '/engine',
 }
 
 export class CarModel {
@@ -56,6 +55,30 @@ export class CarModel {
   async deleteCar(id: number) {
     const res = await fetch(`${URL}${Paths.garage}/${id}`, {
       method: HTTPMethods.delete,
+    });
+    const data = await res.json();
+    return data;
+  }
+
+  async startEngine(id: number) {
+    const res = await fetch(`${URL}${Paths.engine}?id=${id}&status=started`, {
+      method: HTTPMethods.changePart,
+    });
+    const data = await res.json();
+    return data;
+  }
+
+  async stopEngine(id: number) {
+    const res = await fetch(`${URL}${Paths.engine}?id=${id}&status=stopped`, {
+      method: HTTPMethods.changePart,
+    });
+    const data = await res.json();
+    return data;
+  }
+
+  async driveEngine(id: number) {
+    const res = await fetch(`${URL}${Paths.engine}?id=${id}&status=drive`, {
+      method: HTTPMethods.changePart,
     });
     const data = await res.json();
     return data;

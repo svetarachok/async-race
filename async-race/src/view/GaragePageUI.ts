@@ -1,4 +1,4 @@
-import { CarInterface } from '../model/ts-interfaces';
+import { CarInterface, CarUIInteface } from '../model/ts-interfaces';
 import { CarUI } from './CarUI';
 import { carsPerPage, carNames } from '../components/constants';
 import { getRandomCarsData } from '../components/utils';
@@ -47,7 +47,7 @@ export class GaragePageUI {
 
   winnersTable: HTMLElement;
 
-  static carStorage: CarInterface[] = [];
+  static carStorage: CarUIInteface[] = [];
 
   static carToUpdateId: number = 0;
 
@@ -177,7 +177,8 @@ export class GaragePageUI {
       const target: HTMLElement = <HTMLElement>event.target;
       if (target.textContent === 'Select') {
         const targetId: string = target.id.split('-')[3];
-        const targetCar = GaragePageUI.carStorage.filter((car) => car.id === Number(targetId));
+        const arr = GaragePageUI.carStorage;
+        const targetCar = arr.filter((car) => car.id === Number(targetId));
         this.updateCartextInput.value = targetCar[0].name;
         this.updateCarcolorInput.value = targetCar[0].color;
         if (targetCar[0].id) {
@@ -235,5 +236,39 @@ export class GaragePageUI {
       handler(GaragePageUI.pageNumber, carsPerPage);
       this.pageTitle.innerHTML = `Page ${GaragePageUI.pageNumber}`;
     });
+  }
+
+  public listenStart(handler: (id: number, car: CarUIInteface) => void) {
+    this.carsTrack.addEventListener('click', (event: Event) => {
+      const target: HTMLElement = <HTMLElement>event.target;
+      if (target.classList.contains('start-race')) {
+        const id = target.id.split('-')[1];
+        const arr = GaragePageUI.carStorage;
+        console.log(arr);
+        const targetCar = arr.filter((car) => car.id === Number(id))[0];
+        handler(Number(id), targetCar);
+      }
+    });
+  }
+
+  public animationStart(car: CarUIInteface, distance: number, duration: number) {
+    const btn = car.startBtn;
+    btn.disabled = true;
+    let start: number | null = null;
+    let resID: number;
+    function step(timestamp: number) {
+      if (!start) start = timestamp;
+      const time: number = timestamp - start;
+      const passed = Math.round(time * (distance / duration));
+      const carImg = car.carImgWrapper;
+      carImg.style.transform = `translateX(${Math.min(passed, distance)}px)`;
+      if (passed < duration) resID = window.requestAnimationFrame(step);
+    }
+    resID = window.requestAnimationFrame(step);
+    return resID;
+  }
+
+  public animationEnd(success: boolean, callback: number) {
+    if (!success) cancelAnimationFrame(callback);
   }
 }

@@ -1,3 +1,6 @@
+export const URL: string = 'http://127.0.0.1:3000';
+export const HEADER_JSON_DATA = { 'Content-Type': 'application/json' };
+
 export const carNames = {
   Tesla: ['Model S', 'Model 3', 'Model X', 'Model Y', 'Model S GT', 'Model 3 2022', 'Model X abc', 'Model Y22', 'Model new))'],
   BMW: ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'iX', 'i7', 'i4', 'i3', 'i1'],

@@ -123,7 +123,24 @@
 .car-flag {
   margin-left: auto;
   margin-right: 10rem;
-  margin-top: 0.8rem;
+  padding-top: 10px;
+  width: 23px;
+}
+
+.start-race {
+  color: #57cf57;
+  border-color: #57cf57;
+}
+
+.start-race:hover {
+  background-color: #57cf57;
+  color: var(--light-grey-color);
+}
+
+.start-race:disabled {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
 }
 
 .pagination-section {
@@ -140,3 +157,4 @@ table {
   border-collapse: collapse;
   width: 40rem;
 }
+

@@ -1,7 +1,8 @@
 import { CarModel } from '../model/CarModel';
 import { GaragePageUI } from '../view/GaragePageUI';
-import { CarInterface } from '../model/ts-interfaces';
+import { CarInterface, CarUIInteface } from '../model/ts-interfaces';
 import { carsPerPage } from '../components/constants';
+import { getDistance } from '../components/utils';
 
 export class Controller {
   model: CarModel;
@@ -13,6 +14,7 @@ export class Controller {
     this.handleDeleteCar = this.handleDeleteCar.bind(this);
     this.handleUpdateCar = this.handleUpdateCar.bind(this);
     this.handleShowCarsAtPage = this.handleShowCarsAtPage.bind(this);
+    this.handleStart = this.handleStart.bind(this);
     this.model = new CarModel();
     this.view = new GaragePageUI();
     this.view.listenCreateCar(this.handleCreateCar);
@@ -20,6 +22,7 @@ export class Controller {
     this.view.listenDeleteCar(this.handleDeleteCar);
     this.view.listenGenerateCars(this.handleCreateCar);
     this.view.listenPages(this.handleShowCarsAtPage);
+    this.view.listenStart(this.handleStart);
   }
 
   async initGarage() {
@@ -51,6 +54,15 @@ export class Controller {
   async handleShowCarsAtPage(page: number, limit: number) {
     const { cars, carsCounter } = await this.model.getCars(page, limit);
     this.view.updateGarageView(cars, carsCounter);
+  }
+
+  async handleStart(id: number, car: CarUIInteface) {
+    const { velocity, distance } = await this.model.startEngine(id);
+    const time = Math.round(distance / velocity);
+    const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
+    this.view.animationStart(car, screenDistance, time);
+    const { success } = await this.model.driveEngine(id).catch();
+    this.view.animationEnd(success, this.view.animationStart(car, screenDistance, time));
   }
 
   private async updateGarage() {
