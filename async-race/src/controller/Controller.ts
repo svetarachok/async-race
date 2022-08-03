@@ -10,25 +10,27 @@ export class Controller {
   view: GaragePageUI;
 
   constructor() {
+    this.model = new CarModel();
+    this.view = new GaragePageUI();
+  }
+
+  async initGarage() {
     this.handleCreateCar = this.handleCreateCar.bind(this);
     this.handleDeleteCar = this.handleDeleteCar.bind(this);
     this.handleUpdateCar = this.handleUpdateCar.bind(this);
     this.handleShowCarsAtPage = this.handleShowCarsAtPage.bind(this);
     this.handleStart = this.handleStart.bind(this);
-    this.model = new CarModel();
-    this.view = new GaragePageUI();
+    this.handleStop = this.handleStop.bind(this);
+    const { cars, carsCounter } = await this.model.getCars(1, carsPerPage);
+    document.body.append(this.view.drawGarage(carsCounter));
+    this.view.drawCars(cars);
     this.view.listenCreateCar(this.handleCreateCar);
     this.view.listenUpdateCar(this.handleUpdateCar);
     this.view.listenDeleteCar(this.handleDeleteCar);
     this.view.listenGenerateCars(this.handleCreateCar);
     this.view.listenPages(this.handleShowCarsAtPage);
     this.view.listenStart(this.handleStart);
-  }
-
-  async initGarage() {
-    const { cars, carsCounter } = await this.model.getCars(1, carsPerPage);
-    document.body.append(this.view.drawGarage(carsCounter));
-    this.view.drawCars(cars);
+    this.view.listenStop(this.handleStop);
   }
 
   async handleCreateCar(newName: string, newColor: string, page: number) {
@@ -60,10 +62,18 @@ export class Controller {
     const { velocity, distance } = await this.model.startEngine(id);
     const time = Math.round(distance / velocity);
     const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
-    window.requestAnimationFrame(() => this.view.animationStart(car, screenDistance, time));
+    const res = window.requestAnimationFrame(
+      () => this.view.animationStart(car, screenDistance, time),
+    );
     const { success } = await this.model.driveEngine(id);
     console.log(success);
     this.view.animationEnd(success);
+    if (success) window.cancelAnimationFrame(res);
+  }
+
+  async handleStop(id: number, car: CarUIInteface) {
+    const { velocity } = await this.model.stopEngine(id);
+    this.view.returnToStart(velocity, car);
   }
 
   private async updateGarage() {

@@ -137,7 +137,18 @@
   color: var(--light-grey-color);
 }
 
-.start-race:disabled {
+.stop-race {
+  color: #cf5757;
+  border-color: #cf5757;
+}
+
+.stop-race:hover {
+  background-color: #cf5757;
+  color: var(--light-grey-color);
+}
+
+
+.start-race:disabled, .stop-race:disabled {
   background-color: transparent;
   color: var(--secondary-color);
   border-color: var(--secondary-color);

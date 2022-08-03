@@ -242,7 +242,7 @@ export class GaragePageUI {
 
   public listenStart(handler: (id: number, car: CarUIInteface) => void) {
     this.carsTrack.addEventListener('click', (event: Event) => {
-      const target: HTMLElement = <HTMLElement>event.target;
+      const target: HTMLButtonElement = <HTMLButtonElement>event.target;
       if (target.classList.contains('start-race')) {
         const id = target.id.split('-')[1];
         const arr = GaragePageUI.carStorage;
@@ -269,5 +269,24 @@ export class GaragePageUI {
 
   public animationEnd(success: boolean) {
     if (!success) window.cancelAnimationFrame(GaragePageUI.resID);
+  }
+
+  public listenStop(handler: (id: number, car: CarUIInteface) => void) {
+    this.carsTrack.addEventListener('click', (event: Event) => {
+      const target: HTMLButtonElement = <HTMLButtonElement>event.target;
+      if (target.classList.contains('stop-race')) {
+        const id = target.id.split('-')[1];
+        const arr = GaragePageUI.carStorage;
+        const targetCar = arr.filter((car) => car.id === Number(id))[0];
+        handler(Number(id), targetCar);
+      }
+    });
+  }
+
+  public returnToStart(velocity: number, car: CarUIInteface) {
+    const carImg = car.carImgWrapper;
+    carImg.style.transform = `translateX(${velocity}px)`;
+    console.log(carImg.style);
+    return car;
   }
 }
