@@ -60,9 +60,10 @@ export class Controller {
     const { velocity, distance } = await this.model.startEngine(id);
     const time = Math.round(distance / velocity);
     const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
-    this.view.animationStart(car, screenDistance, time);
-    const { success } = await this.model.driveEngine(id).catch();
-    this.view.animationEnd(success, this.view.animationStart(car, screenDistance, time));
+    window.requestAnimationFrame(() => this.view.animationStart(car, screenDistance, time));
+    const { success } = await this.model.driveEngine(id);
+    console.log(success);
+    this.view.animationEnd(success);
   }
 
   private async updateGarage() {

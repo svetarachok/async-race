@@ -53,6 +53,8 @@ export class GaragePageUI {
 
   static pageNumber: number = 1;
 
+  static resID: number = 0;
+
   constructor() {
     this.elem = this.createElement('main', 'main');
     this.elem.classList.add('main');
@@ -244,7 +246,6 @@ export class GaragePageUI {
       if (target.classList.contains('start-race')) {
         const id = target.id.split('-')[1];
         const arr = GaragePageUI.carStorage;
-        console.log(arr);
         const targetCar = arr.filter((car) => car.id === Number(id))[0];
         handler(Number(id), targetCar);
       }
@@ -255,20 +256,18 @@ export class GaragePageUI {
     const btn = car.startBtn;
     btn.disabled = true;
     let start: number | null = null;
-    let resID: number;
     function step(timestamp: number) {
       if (!start) start = timestamp;
       const time: number = timestamp - start;
       const passed = Math.round(time * (distance / duration));
       const carImg = car.carImgWrapper;
       carImg.style.transform = `translateX(${Math.min(passed, distance)}px)`;
-      if (passed < duration) resID = window.requestAnimationFrame(step);
+      if (passed < duration) GaragePageUI.resID = window.requestAnimationFrame(step);
     }
-    resID = window.requestAnimationFrame(step);
-    return resID;
+    GaragePageUI.resID = window.requestAnimationFrame(step);
   }
 
-  public animationEnd(success: boolean, callback: number) {
-    if (!success) cancelAnimationFrame(callback);
+  public animationEnd(success: boolean) {
+    if (!success) window.cancelAnimationFrame(GaragePageUI.resID);
   }
 }

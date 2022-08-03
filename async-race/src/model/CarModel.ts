@@ -79,8 +79,7 @@ export class CarModel {
   async driveEngine(id: number) {
     const res = await fetch(`${URL}${Paths.engine}?id=${id}&status=drive`, {
       method: HTTPMethods.changePart,
-    });
-    const data = await res.json();
-    return data;
+    }).catch();
+    return res.status !== 200 ? { success: false } : { ...await res.json() };
   }
 }
