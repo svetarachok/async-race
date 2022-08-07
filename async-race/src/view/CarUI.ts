@@ -85,12 +85,4 @@ export class CarUI implements CarUIInteface {
     }
     return elem;
   }
-
-  // public listenStartEngine() {
-  //   let id: number = 0;
-  //   this.startBtn.addEventListener('click', () => {
-  //     id = this.id as number;
-  //   });
-  //   return id;
-  // }
 }

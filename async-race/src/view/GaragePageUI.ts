@@ -1,4 +1,6 @@
-import { CarInterface, CarUIInteface } from '../model/ts-interfaces';
+import {
+  CarInterface, CarUIInteface, WinnerInterface,
+} from '../model/ts-interfaces';
 import { CarUI } from './CarUI';
 import { carsPerPage, carNames } from '../components/constants';
 import { getRandomCarsData } from '../components/utils';
@@ -43,11 +45,35 @@ export class GaragePageUI {
 
   pagination: HTMLElement;
 
-  winners: WinnersUI;
+  winners: HTMLElement;
 
-  winnersTable: HTMLElement;
+  winHeader: HTMLElement;
+
+  winPageTitle: HTMLElement;
+
+  winWrapper: HTMLElement;
+
+  winTable: HTMLTableElement;
+
+  tabHeader: HTMLTableSectionElement;
+
+  tabHeaderRow: HTMLTableRowElement;
+
+  tabHeaderCellNum: HTMLTableCellElement;
+
+  tabHeaderCellImg: HTMLTableCellElement;
+
+  tabHeaderCellName: HTMLTableCellElement;
+
+  tabHeaderCellWins: HTMLTableCellElement;
+
+  tabHeaderCellTime: HTMLTableCellElement;
+
+  popUp: HTMLElement;
 
   static carStorage: CarUIInteface[] = [];
+
+  static winnersStorage: WinnerInterface[] = [];
 
   static carToUpdateId: number = 0;
 
@@ -84,8 +110,22 @@ export class GaragePageUI {
     this.pagination = this.createElement('div', 'pagination-section');
     this.prevBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'prev-btn');
     this.nextBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'prev-btn');
-    this.winners = new WinnersUI();
-    this.winnersTable = this.winners.drawWinnersTable();
+    // winners section
+    this.winners = <HTMLElement> this.createElement('section', 'winners', 'winners');
+    this.winHeader = this.createElement('h1', 'page-header');
+    this.winPageTitle = <HTMLElement> this.createElement('p', 'pages-header');
+    this.winWrapper = this.createElement('div', 'winners__wrapper');
+    this.winTable = <HTMLTableElement> this.createElement('table', 'win__table', 'winners');
+    this.tabHeader = <HTMLTableSectionElement> this.createElement('thead', 'win__table_header');
+    this.tabHeaderRow = <HTMLTableRowElement> this.createElement('tr');
+    this.tabHeaderCellNum = <HTMLTableCellElement> this.createElement('th');
+    this.tabHeaderCellImg = <HTMLTableCellElement> this.createElement('th');
+    this.tabHeaderCellName = <HTMLTableCellElement> this.createElement('th');
+    this.tabHeaderCellWins = <HTMLTableCellElement> this.createElement('th');
+    this.tabHeaderCellTime = <HTMLTableCellElement> this.createElement('th');
+    // pop up
+    this.popUp = this.createElement('div', 'popUp', 'popUp');
+    this.animationStart = this.animationStart.bind(this);
     this.selectCar();
   }
 
@@ -98,6 +138,28 @@ export class GaragePageUI {
       elem.id = elId;
     }
     return elem;
+  }
+
+  drawWinnersTable(winnersCounter: string) {
+    this.winHeader.textContent = `Winners (${winnersCounter})`;
+    this.winPageTitle.innerHTML = `Page ${WinnersUI.pageNumber}`;
+    this.tabHeaderCellNum.textContent = 'Number';
+    this.tabHeaderCellImg.textContent = 'Car';
+    this.tabHeaderCellName.textContent = 'Name';
+    this.tabHeaderCellWins.textContent = 'Wins';
+    this.tabHeaderCellTime.textContent = 'Best time (seconds)';
+    this.tabHeaderRow.append(
+      this.tabHeaderCellNum,
+      this.tabHeaderCellImg,
+      this.tabHeaderCellName,
+      this.tabHeaderCellWins,
+      this.tabHeaderCellTime,
+    );
+    this.tabHeader.append(this.tabHeaderRow);
+    this.winTable.append(this.tabHeader);
+    this.winWrapper.append(this.winTable);
+    this.winners.append(this.winHeader, this.winPageTitle, this.winWrapper);
+    return this.winners;
   }
 
   drawGarage(carsCounter: string) {
@@ -129,15 +191,24 @@ export class GaragePageUI {
       this.pageTitle,
       this.carsTrack,
       this.pagination,
-      this.winnersTable,
     );
     return this.elem;
+  }
+
+  drawPopUp(winner: WinnerInterface) {
+    this.popUp.textContent = `${winner.name} went first (${winner.time / 1000}s)`;
+    this.elem.append(this.popUp);
   }
 
   public updateGarageView(cars: CarInterface[], carsCounter: string) {
     this.carsTrack.innerHTML = '';
     this.garageHeader.innerHTML = `Garage (${carsCounter})`;
     this.drawCars(cars);
+  }
+
+  public updateWinnersView(winners: WinnerInterface[], winnerCounter: string) {
+    this.winHeader.innerHTML = `Winners (${winnerCounter})`;
+    this.drawWinners(winners);
   }
 
   public drawCars(cars: CarInterface[]) {
@@ -158,6 +229,16 @@ export class GaragePageUI {
     } else {
       this.prevBtn.disabled = true;
     }
+  }
+
+  public drawWinners(winners: WinnerInterface[]) {
+    GaragePageUI.winnersStorage = [];
+    winners.forEach((winner) => {
+      const winnerTemplate = new WinnersUI(winner);
+      GaragePageUI.winnersStorage.push(winnerTemplate);
+      this.winTable.append(winnerTemplate.draw());
+    });
+    return this.winTable;
   }
 
   public listenCreateCar(handler: (ar1: string, ar2: string, arg3: number) => void) {
@@ -265,6 +346,7 @@ export class GaragePageUI {
       if (passed < duration) GaragePageUI.resID = window.requestAnimationFrame(step);
     }
     GaragePageUI.resID = window.requestAnimationFrame(step);
+    return GaragePageUI.resID;
   }
 
   public animationEnd(success: boolean) {
@@ -283,10 +365,16 @@ export class GaragePageUI {
     });
   }
 
+  public listenRace(handler: (cars: CarUIInteface[]) => void) {
+    this.raceBtn.addEventListener('click', () => {
+      const cars = GaragePageUI.carStorage;
+      handler(cars);
+    });
+  }
+
   public returnToStart(velocity: number, car: CarUIInteface) {
     const carImg = car.carImgWrapper;
     carImg.style.transform = `translateX(${velocity}px)`;
-    console.log(carImg.style);
     return car;
   }
 }

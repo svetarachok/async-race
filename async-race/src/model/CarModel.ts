@@ -1,4 +1,4 @@
-import { CarInterface } from './ts-interfaces';
+import { CarInterface, WinnerData } from './ts-interfaces';
 import { URL, HEADER_JSON_DATA } from '../components/constants';
 
 enum HTTPMethods {
@@ -12,6 +12,7 @@ enum HTTPMethods {
 enum Paths {
   garage = '/garage',
   engine = '/engine',
+  winners = '/winners',
 }
 
 export class CarModel {
@@ -34,7 +35,7 @@ export class CarModel {
     return data;
   }
 
-  async getCar(id: number) {
+  async getCar(id: number): Promise<CarInterface> {
     const res = await fetch(`${URL}${Paths.garage}/${id}`, {
       method: HTTPMethods.get,
     });
@@ -81,5 +82,52 @@ export class CarModel {
       method: HTTPMethods.changePart,
     }).catch();
     return res.status !== 200 ? { success: false } : { ...await res.json() };
+  }
+
+  async getWinners(page: number, limit: number, sort?: string, order?: string):
+  Promise<{ winners: WinnerData[]; winnersCounter: string }> {
+    const winnersData = await fetch(`${URL}${Paths.winners}?_page=${page}&_limit=${limit}&_sort=${sort}&_order=${order}`);
+    return {
+      winners: await winnersData.json() as WinnerData[],
+      winnersCounter: winnersData.headers.get('X-Total-Count') as string,
+    };
+  }
+
+  async getWinner(id: number) {
+    const res = await fetch(`${URL}${Paths.winners}/${id}`);
+    const data = await res.json();
+    return data;
+  }
+
+  async createWinner(body: WinnerData) {
+    const res = await fetch(`${URL}${Paths.winners}`, {
+      method: HTTPMethods.post,
+      headers: HEADER_JSON_DATA,
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    return data;
+  }
+
+  async updateWinner(winner: WinnerData) {
+    const body = {
+      wins: winner.wins,
+      time: winner.time,
+    };
+    const res = await fetch(`${URL}${Paths.winners}/${winner.id}`, {
+      method: HTTPMethods.changeAll,
+      headers: HEADER_JSON_DATA,
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    return data;
+  }
+
+  async deleteWinner(id: number) {
+    const res = await fetch(`${URL}${Paths.winners}/${id}`, {
+      method: HTTPMethods.delete,
+    });
+    const data = await res.json();
+    return data;
   }
 }

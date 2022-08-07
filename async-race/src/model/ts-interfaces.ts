@@ -20,8 +20,32 @@ export interface CarUIInteface {
   carFlag: HTMLElement,
 }
 
-export interface WinnerInterface {
-  id: number,
+export interface WinnerData {
   wins: number,
-  time: number
+  time: number,
+  id: number,
+}
+
+export interface WinnerInterface {
+  id?: number,
+  color: string,
+  name: string,
+  wins: number,
+  time: number,
+}
+
+export type TableElement = HTMLTableRowElement | HTMLTableCellElement;
+
+export interface WinnersUIInterface {
+  id?: number,
+  color: string,
+  name: string,
+  wins: number,
+  time: number,
+  tabRow: HTMLTableRowElement;
+  tabCellNum: HTMLTableCellElement;
+  tabCellImg: HTMLTableCellElement;
+  tabCellName: HTMLTableCellElement;
+  tabCellWins: HTMLTableCellElement;
+  tabCellTime: HTMLTableCellElement;
 }
