@@ -384,8 +384,8 @@ export class GaragePageUI {
 
   public animationStart(id: number, velocity: number, distance: number) {
     const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
-    const btn = car.startBtn;
-    btn.disabled = true;
+    car.startBtn.disabled = true;
+    car.stopBtn.disabled = false;
     const duration = Math.round(distance / velocity);
     const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
     let start: number | null = null;
@@ -413,6 +413,8 @@ export class GaragePageUI {
         const arr = GaragePageUI.carStorage;
         const targetCar = arr.filter((car) => car.id === Number(id))[0];
         handler(Number(id), targetCar);
+        targetCar.stopBtn.disabled = true;
+        targetCar.startBtn.disabled = false;
       }
     });
   }
@@ -445,6 +447,7 @@ export class GaragePageUI {
     const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
     const carImg = car.carImgWrapper;
     carImg.style.transform = `translateX(${velocity}px)`;
+    return carImg.style;
   }
 
   public listenWinPages(handler: (page: number, limit: number, sort: string) => void) {
