@@ -24,7 +24,8 @@ export class Controller {
     this.handleStart = this.handleStart.bind(this);
     this.handleStop = this.handleStop.bind(this);
     this.handleRace = this.handleRace.bind(this);
-    this.handleSort = this.handleSort.bind(this);
+    this.handleWinsSort = this.handleWinsSort.bind(this);
+    this.handleTimeSort = this.handleTimeSort.bind(this);
     this.makeWinners = this.makeWinners.bind(this);
     this.handleShowWinnersAtPage = this.handleShowWinnersAtPage.bind(this);
     this.view.header.append(this.view.garageBtn, this.view.winnersBtn);
@@ -56,7 +57,8 @@ export class Controller {
     this.view.listenStop(this.handleStop);
     this.view.listenRace(this.handleRace);
     this.view.listenWinPages(this.handleShowWinnersAtPage);
-    this.view.listenSort(this.handleSort);
+    this.view.listenWins(this.handleWinsSort);
+    this.view.listenTimeSort(this.handleTimeSort);
   }
 
   async makeWinners(winners: WinnerData []) {
@@ -124,10 +126,6 @@ export class Controller {
     const { cars } = await this.model.getCars(page, limit);
     const allCarsStartPromises = await this.model.turnAllToStart(cars);
     const allCarsStartData = await Promise.all(allCarsStartPromises);
-    console.log(allCarsStartData);
-    // const min = Math.min(...allCarsStartData.map((item) => item.velocity));
-    // const winner = allCarsStartData.filter((item) => item.velocity === min);
-    // console.log(winner);
     await Promise.all(
       allCarsStartData.map(async (car) => {
         this.view.animationStart(car.id, car.velocity, car.distance);
@@ -192,11 +190,23 @@ export class Controller {
     this.view.updateWinnersView(winnersToDraw, winnersCounter);
   }
 
-  async handleSort(page: number, limit: number, sortStatus: string) {
+  async handleWinsSort(page: number, limit: number, sort: string, order: string) {
     const { winners, winnersCounter } = await this.model.getWinners(
       page,
       limit,
-      sortStatus,
+      sort,
+      order,
+    );
+    const winnersToDraw: WinnerInterface [] = await this.makeWinners(winners);
+    this.view.updateWinnersView(winnersToDraw, winnersCounter);
+  }
+
+  async handleTimeSort(page: number, limit: number, sort: string, order: string) {
+    const { winners, winnersCounter } = await this.model.getWinners(
+      page,
+      limit,
+      sort,
+      order,
     );
     const winnersToDraw: WinnerInterface [] = await this.makeWinners(winners);
     this.view.updateWinnersView(winnersToDraw, winnersCounter);

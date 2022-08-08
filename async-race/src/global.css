@@ -246,6 +246,6 @@
   text-align: center;
 }
 
-.unsorted:hover, .asc-sorted:hover, .desc-sorted:hover {
+.unsorted:hover, .unsorted-time:hover, .asc-sorted:hover, .desc-sorted:hover {
   cursor: pointer;
 }

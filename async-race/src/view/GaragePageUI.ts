@@ -143,7 +143,6 @@ export class GaragePageUI {
     this.tabHeaderCellImg = <HTMLTableCellElement> this.createElement('th');
     this.tabHeaderCellName = <HTMLTableCellElement> this.createElement('th');
     this.tabHeaderCellWins = <HTMLTableCellElement> this.createElement('th');
-    this.tabHeaderCellWins.classList.add('unsorted');
     this.tabHeaderCellTime = <HTMLTableCellElement> this.createElement('th');
     this.tabBody = <HTMLTableSectionElement> this.createElement('tbody', 'win__table_body');
     this.tabPagination = this.createElement('div', 'pagination-section');
@@ -451,24 +450,40 @@ export class GaragePageUI {
     });
   }
 
-  public listenSort(handler: (page: number, limit: number, sort: string) => void) {
+  public listenWins(handler: (page: number, limit: number, sort: string, order: string) => void) {
     this.tabHeaderCellWins.addEventListener('click', (event: Event) => {
       const target: HTMLButtonElement = <HTMLButtonElement>event.target;
-      if (target.classList.contains('unsorted')) {
-        handler(GaragePageUI.winPageNumber, winnersPerPage, 'ASC');
-        this.tabHeaderCellWins.classList.remove('unsorted');
-        this.tabHeaderCellWins.classList.add('asc-sorted');
-        this.tabHeaderCellWins.innerText = 'Wins 🠕';
-      } else if (target.classList.contains('asc-sorted')) {
-        handler(GaragePageUI.winPageNumber, winnersPerPage, 'DESC');
+      console.log(target);
+      if (target.classList.contains('asc-sorted')) {
+        handler(GaragePageUI.winPageNumber, winnersPerPage, 'wins', 'DESC');
         this.tabHeaderCellWins.classList.remove('asc-sorted');
         this.tabHeaderCellWins.classList.add('desc-sorted');
         this.tabHeaderCellWins.innerText = 'Wins 🠗';
-      } else if (target.classList.contains('desc-sorted')) {
-        handler(GaragePageUI.winPageNumber, winnersPerPage, 'ASC');
+      } else {
+        handler(GaragePageUI.winPageNumber, winnersPerPage, 'wins', 'ASC');
         this.tabHeaderCellWins.classList.remove('desc-sorted');
         this.tabHeaderCellWins.classList.add('asc-sorted');
         this.tabHeaderCellWins.innerText = 'Wins 🠕';
+      }
+    });
+  }
+
+  public listenTimeSort(
+    handler: (page: number, limit: number, sort: string, order: string) => void,
+  ) {
+    this.tabHeaderCellTime.addEventListener('click', (event: Event) => {
+      const target: HTMLButtonElement = <HTMLButtonElement>event.target;
+      console.log(target);
+      if (target.classList.contains('asc-sorted')) {
+        handler(GaragePageUI.winPageNumber, winnersPerPage, 'time', 'DESC');
+        this.tabHeaderCellTime.classList.remove('asc-sorted');
+        this.tabHeaderCellTime.classList.add('desc-sorted');
+        this.tabHeaderCellTime.innerText = 'Best time (seconds) 🠗';
+      } else {
+        handler(GaragePageUI.winPageNumber, winnersPerPage, 'time', 'ASC');
+        this.tabHeaderCellTime.classList.remove('desc-sorted');
+        this.tabHeaderCellTime.classList.add('asc-sorted');
+        this.tabHeaderCellTime.innerText = 'Best time (seconds) 🠕';
       }
     });
   }
