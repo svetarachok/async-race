@@ -38,3 +38,15 @@ export const getDistance = (elem1: HTMLElement, elem2: HTMLElement) => {
   const elem2Position = getElementCenter(elem2);
   return Math.hypot(elem1Position.x - elem2Position.x, elem1Position.y - elem2Position.y);
 };
+
+// export function once (fn: Function): boolean | undefined {
+//   let isExecuted = false;
+//   return (...args: []) => {
+//     if(!isExecuted){
+//       isExecuted = true;
+//       return fn(...args);
+//     } else {
+//       return undefined;
+//     }
+//   }
+// };

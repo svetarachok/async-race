@@ -69,6 +69,13 @@ export class CarModel {
     return data;
   }
 
+  async driveEngine(id: number) {
+    const res = await fetch(`${URL}${Paths.engine}?id=${id}&status=drive`, {
+      method: HTTPMethods.changePart,
+    }).catch();
+    return res.status !== 200 ? { success: false } : { ...await res.json() };
+  }
+
   async stopEngine(id: number) {
     const res = await fetch(`${URL}${Paths.engine}?id=${id}&status=stopped`, {
       method: HTTPMethods.changePart,
@@ -77,14 +84,27 @@ export class CarModel {
     return data;
   }
 
-  async driveEngine(id: number) {
-    const res = await fetch(`${URL}${Paths.engine}?id=${id}&status=drive`, {
-      method: HTTPMethods.changePart,
-    }).catch();
-    return res.status !== 200 ? { success: false } : { ...await res.json() };
+  async turnAllToStart(cars: CarInterface []) {
+    this.startEngine = this.startEngine.bind(this);
+    const data = cars.map(async (car: CarInterface) => {
+      const id: number = car.id as number;
+      const { velocity, distance } = await this.startEngine(id);
+      const obj = { id, velocity, distance };
+      return obj;
+    });
+    return data;
   }
 
-  async getWinners(page: number, limit: number, sort?: string, order?: string):
+  async turnAllToDrive(cars: CarInterface []) {
+    const data = cars.map(async (car: CarInterface) => {
+      const id: number = car.id as number;
+      const { success } = await this.driveEngine(id);
+      return success;
+    });
+    return data;
+  }
+
+  async getWinners(page?: number, limit?: number, sort?: string, order?: string):
   Promise<{ winners: WinnerData[]; winnersCounter: string }> {
     const winnersData = await fetch(`${URL}${Paths.winners}?_page=${page}&_limit=${limit}&_sort=${sort}&_order=${order}`);
     return {

@@ -5,6 +5,7 @@
   --secondary-color: #808080;
   --light-grey-color: #e6e6e6;
   --accent-color: #89db70;
+  --race-color: #ff6a00;
 }
 
 * {
@@ -33,6 +34,40 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.5s ease;
+}
+
+#race-btn {
+  color: var(--race-color);
+  border: 2px solid var(--race-color);
+  background-color: transparent;
+}
+
+#race-btn:hover {
+  background-color: var(--race-color);
+  color: white;
+}
+
+#race-btn:disabled {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
+}
+
+#reset-btn {
+  color: var(--race-color);
+  border: 2px solid var(--race-color);
+  background-color: transparent;
+}
+
+#reset-btn:hover {
+  background-color: var(--race-color);
+  color: white;
+}
+
+#reset-btn:disabled {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
 }
 
 .header {
@@ -88,6 +123,13 @@
 .pages-header {
   font-size: 1.3rem;
   font-weight: 700;
+  line-height: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.cars-track {
+  background-color: black;
+  padding: 1rem;
 }
 
 .car_wrapper {
@@ -101,7 +143,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.1rem;
-  border-bottom: 3px dashed var(--main-color);
+  border-bottom: 3px dashed white;
   margin-bottom: 0.6rem;
 }
 
@@ -113,6 +155,8 @@
 
 .car-name {
   font-size: 1.2rem;
+  line-height: 1rem;
+  color: white;
 }
 
 .car-img {
@@ -134,6 +178,7 @@
 .start-race {
   color: #57cf57;
   border-color: #57cf57;
+  background-color: transparent;
 }
 
 .start-race:hover {
@@ -144,6 +189,7 @@
 .stop-race {
   color: #cf5757;
   border-color: #cf5757;
+  background-color: transparent;
 }
 
 .stop-race:hover {
@@ -197,4 +243,8 @@
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
+}
+
+.unsorted:hover, .asc-sorted:hover, .desc-sorted:hover {
+  cursor: pointer;
 }

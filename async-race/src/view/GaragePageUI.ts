@@ -1,9 +1,9 @@
 import {
-  CarInterface, CarUIInteface, WinnerInterface,
+  CarInterface, CarUIInteface, WinnerData, WinnerInterface,
 } from '../model/ts-interfaces';
 import { CarUI } from './CarUI';
-import { carsPerPage, carNames } from '../components/constants';
-import { getRandomCarsData } from '../components/utils';
+import { carsPerPage, carNames, winnersPerPage } from '../components/constants';
+import { getRandomCarsData, getDistance } from '../components/utils';
 import { WinnersUI } from './WinnersUI';
 
 export class GaragePageUI {
@@ -71,6 +71,14 @@ export class GaragePageUI {
 
   popUp: HTMLElement;
 
+  tabBody: HTMLTableSectionElement;
+
+  tabPagination: HTMLElement;
+
+  tabPrevBtn: HTMLButtonElement;
+
+  tabNextBtn: HTMLButtonElement;
+
   static carStorage: CarUIInteface[] = [];
 
   static winnersStorage: WinnerInterface[] = [];
@@ -78,6 +86,8 @@ export class GaragePageUI {
   static carToUpdateId: number = 0;
 
   static pageNumber: number = 1;
+
+  static winPageNumber: number = 1;
 
   static resID: number = 0;
 
@@ -109,7 +119,7 @@ export class GaragePageUI {
     this.carsTrack = this.createElement('div', 'cars-track');
     this.pagination = this.createElement('div', 'pagination-section');
     this.prevBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'prev-btn');
-    this.nextBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'prev-btn');
+    this.nextBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'next-btn');
     // winners section
     this.winners = <HTMLElement> this.createElement('section', 'winners', 'winners');
     this.winHeader = this.createElement('h1', 'page-header');
@@ -122,7 +132,12 @@ export class GaragePageUI {
     this.tabHeaderCellImg = <HTMLTableCellElement> this.createElement('th');
     this.tabHeaderCellName = <HTMLTableCellElement> this.createElement('th');
     this.tabHeaderCellWins = <HTMLTableCellElement> this.createElement('th');
+    this.tabHeaderCellWins.classList.add('unsorted');
     this.tabHeaderCellTime = <HTMLTableCellElement> this.createElement('th');
+    this.tabBody = <HTMLTableSectionElement> this.createElement('tbody', 'win__table_body');
+    this.tabPagination = this.createElement('div', 'pagination-section');
+    this.tabPrevBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'tab-prev-btn');
+    this.tabNextBtn = <HTMLButtonElement> this.createElement('button', 'btn', 'tab-next-btn');
     // pop up
     this.popUp = this.createElement('div', 'popUp', 'popUp');
     this.animationStart = this.animationStart.bind(this);
@@ -142,12 +157,12 @@ export class GaragePageUI {
 
   drawWinnersTable(winnersCounter: string) {
     this.winHeader.textContent = `Winners (${winnersCounter})`;
-    this.winPageTitle.innerHTML = `Page ${WinnersUI.pageNumber}`;
+    this.winPageTitle.innerHTML = `Page ${GaragePageUI.winPageNumber}`;
     this.tabHeaderCellNum.textContent = 'Number';
     this.tabHeaderCellImg.textContent = 'Car';
     this.tabHeaderCellName.textContent = 'Name';
-    this.tabHeaderCellWins.textContent = 'Wins';
-    this.tabHeaderCellTime.textContent = 'Best time (seconds)';
+    this.tabHeaderCellWins.textContent = 'Wins ';
+    this.tabHeaderCellTime.textContent = 'Best time (seconds) ';
     this.tabHeaderRow.append(
       this.tabHeaderCellNum,
       this.tabHeaderCellImg,
@@ -156,9 +171,9 @@ export class GaragePageUI {
       this.tabHeaderCellTime,
     );
     this.tabHeader.append(this.tabHeaderRow);
-    this.winTable.append(this.tabHeader);
+    this.winTable.append(this.tabHeader, this.tabBody);
     this.winWrapper.append(this.winTable);
-    this.winners.append(this.winHeader, this.winPageTitle, this.winWrapper);
+    this.winners.append(this.winHeader, this.winPageTitle, this.winWrapper, this.tabPagination);
     return this.winners;
   }
 
@@ -171,6 +186,7 @@ export class GaragePageUI {
     this.prevBtn.disabled = true;
     this.nextBtn.textContent = 'Next';
     this.nextBtn.disabled = true;
+    this.resetBtn.disabled = true;
     this.createCarForm.append(
       this.createCarTextInput,
       this.createCarColorInput,
@@ -195,8 +211,10 @@ export class GaragePageUI {
     return this.elem;
   }
 
-  drawPopUp(winner: WinnerInterface) {
-    this.popUp.textContent = `${winner.name} went first (${winner.time / 1000}s)`;
+  drawPopUp(winner: WinnerData) {
+    const { id } = winner;
+    const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
+    this.popUp.textContent = `${car.name} went first (${winner.time / 1000}s)`;
     this.elem.append(this.popUp);
   }
 
@@ -207,6 +225,7 @@ export class GaragePageUI {
   }
 
   public updateWinnersView(winners: WinnerInterface[], winnerCounter: string) {
+    this.tabBody.innerHTML = '';
     this.winHeader.innerHTML = `Winners (${winnerCounter})`;
     this.drawWinners(winners);
   }
@@ -236,9 +255,19 @@ export class GaragePageUI {
     winners.forEach((winner) => {
       const winnerTemplate = new WinnersUI(winner);
       GaragePageUI.winnersStorage.push(winnerTemplate);
-      this.winTable.append(winnerTemplate.draw());
+      this.tabBody.append(winnerTemplate.draw());
     });
-    return this.winTable;
+    const winnersNumber = Number(this.winPageTitle.innerHTML.split(' ')[1].slice(1, -1));
+    if (winnersNumber > 10 && GaragePageUI.winPageNumber < Math.ceil(winnersNumber / 10)) {
+      this.tabNextBtn.disabled = false;
+    } else {
+      this.tabNextBtn.disabled = true;
+    }
+    if (GaragePageUI.winPageNumber > 1) {
+      this.tabPrevBtn.disabled = false;
+    } else {
+      this.tabPrevBtn.disabled = true;
+    }
   }
 
   public listenCreateCar(handler: (ar1: string, ar2: string, arg3: number) => void) {
@@ -333,25 +362,32 @@ export class GaragePageUI {
     });
   }
 
-  public animationStart(car: CarUIInteface, distance: number, duration: number) {
+  public animationStart(id: number, velocity: number, distance: number) {
+    const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
     const btn = car.startBtn;
     btn.disabled = true;
+    const duration = Math.round(distance / velocity);
+    const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
     let start: number | null = null;
     function step(timestamp: number) {
       if (!start) start = timestamp;
       const time: number = timestamp - start;
-      const passed = Math.round(time * (distance / duration));
+      const passed = Math.round(time * (screenDistance / duration));
       const carImg = car.carImgWrapper;
-      carImg.style.transform = `translateX(${Math.min(passed, distance)}px)`;
-      if (passed < duration) GaragePageUI.resID = window.requestAnimationFrame(step);
+      carImg.style.transform = `translateX(${Math.min(passed, screenDistance)}px)`;
+      if (passed < duration) GaragePageUI.resID = requestAnimationFrame(step);
     }
-    GaragePageUI.resID = window.requestAnimationFrame(step);
+    GaragePageUI.resID = requestAnimationFrame(step);
     return GaragePageUI.resID;
   }
 
   public animationEnd(success: boolean) {
     if (!success) window.cancelAnimationFrame(GaragePageUI.resID);
   }
+
+  // public animationRace(obj: { id: number, velocity: number, distance: number }[]) {
+
+  // }
 
   public listenStop(handler: (id: number, car: CarUIInteface) => void) {
     this.carsTrack.addEventListener('click', (event: Event) => {
@@ -365,10 +401,22 @@ export class GaragePageUI {
     });
   }
 
-  public listenRace(handler: (cars: CarUIInteface[]) => void) {
+  public listenRace(handler: (page: number, limit: number) => void) {
     this.raceBtn.addEventListener('click', () => {
-      const cars = GaragePageUI.carStorage;
-      handler(cars);
+      const page: string = this.pageTitle.textContent as string;
+      const pageNumber: number = Number(page.split(' ')[1] as string);
+      const limit = carsPerPage;
+      this.raceBtn.disabled = true;
+      handler(pageNumber, limit);
+      this.resetBtn.disabled = false;
+    });
+    this.resetBtn.addEventListener('click', () => {
+      this.raceBtn.disabled = false;
+      // cars.forEach((car) => {
+      //   this.returnToStart(0, car);
+      // });
+      this.popUp.remove();
+      this.resetBtn.disabled = true;
     });
   }
 
@@ -376,5 +424,42 @@ export class GaragePageUI {
     const carImg = car.carImgWrapper;
     carImg.style.transform = `translateX(${velocity}px)`;
     return car;
+  }
+
+  public listenWinPages(handler: (page: number, limit: number, sort: string) => void) {
+    this.tabPrevBtn.addEventListener('click', () => {
+      GaragePageUI.winPageNumber -= 1;
+      handler(GaragePageUI.winPageNumber, winnersPerPage, 'id');
+      this.winPageTitle.innerHTML = `Page ${GaragePageUI.winPageNumber}`;
+    });
+    this.tabNextBtn.addEventListener('click', () => {
+      GaragePageUI.winPageNumber += 1;
+      handler(GaragePageUI.winPageNumber, winnersPerPage, 'id');
+      this.winPageTitle.innerHTML = `Page ${GaragePageUI.winPageNumber}`;
+    });
+  }
+
+  public listenSort(handler: (page: number, limit: number, sort: string) => void) {
+    this.tabHeaderCellWins.addEventListener('click', (event: Event) => {
+      const target: HTMLButtonElement = <HTMLButtonElement>event.target;
+      if (target.classList.contains('unsorted')) {
+        handler(GaragePageUI.winPageNumber, winnersPerPage, 'ASC');
+        this.tabHeaderCellWins.classList.remove('unsorted');
+        this.tabHeaderCellWins.classList.add('asc-sorted');
+        this.tabHeaderCellWins.innerText = 'Wins 🠕';
+      } else if (target.classList.contains('asc-sorted')) {
+        handler(GaragePageUI.winPageNumber, winnersPerPage, 'DESC');
+        this.tabHeaderCellWins.classList.remove('asc-sorted');
+        this.tabHeaderCellWins.classList.add('desc-sorted');
+        this.tabHeaderCellWins.innerText = 'Wins 🠗';
+      } else if (target.classList.contains('desc-sorted')) {
+        handler(GaragePageUI.winPageNumber, winnersPerPage, 'ASC');
+        this.tabHeaderCellWins.classList.remove('desc-sorted');
+        this.tabHeaderCellWins.classList.add('asc-sorted');
+        this.tabHeaderCellWins.innerText = 'Wins 🠕';
+      }
+      console.log(target);
+      console.log(handler);
+    });
   }
 }

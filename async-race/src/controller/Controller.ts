@@ -1,10 +1,10 @@
-import { CarModel } from '../model/CarModel';
+import { CarModel } from '../model/Model';
 import { GaragePageUI } from '../view/GaragePageUI';
 import {
   CarInterface, CarUIInteface, WinnerInterface, WinnerData,
 } from '../model/ts-interfaces';
 import { carsPerPage } from '../components/constants';
-import { getDistance } from '../components/utils';
+// import { once } from '../components/utils';
 
 export class Controller {
   model: CarModel;
@@ -24,6 +24,8 @@ export class Controller {
     this.handleStart = this.handleStart.bind(this);
     this.handleStop = this.handleStop.bind(this);
     this.handleRace = this.handleRace.bind(this);
+    this.handleSort = this.handleSort.bind(this);
+    this.makeWinners = this.makeWinners.bind(this);
     const { cars, carsCounter } = await this.model.getCars(1, carsPerPage);
     document.body.append(this.view.drawGarage(carsCounter));
     this.view.drawCars(cars);
@@ -41,6 +43,8 @@ export class Controller {
     this.view.listenStart(this.handleStart);
     this.view.listenStop(this.handleStop);
     this.view.listenRace(this.handleRace);
+    this.view.listenWinPages(this.handleShowWinnersAtPage);
+    this.view.listenSort(this.handleSort);
   }
 
   async makeWinners(winners: WinnerData []) {
@@ -85,15 +89,12 @@ export class Controller {
     this.view.updateGarageView(cars, carsCounter);
   }
 
-  async handleStart(id: number, car: CarUIInteface) {
+  async handleStart(id: number) {
     const { velocity, distance } = await this.model.startEngine(id);
-    const time = Math.round(distance / velocity);
-    const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
-    const res = this.view.animationStart(car, screenDistance, time);
+    this.view.animationStart(id, velocity, distance);
     const { success } = await this.model.driveEngine(id);
-    console.log(success);
     this.view.animationEnd(success);
-    if (success) window.cancelAnimationFrame(res);
+    // if (!success) window.cancelAnimationFrame(res);
   }
 
   async handleStop(id: number, car: CarUIInteface) {
@@ -101,36 +102,69 @@ export class Controller {
     this.view.returnToStart(velocity, car);
   }
 
-  async handleRace(cars: CarUIInteface[]) {
-    const winners: number[] = [];
-    const winner: WinnerData = {} as WinnerData;
-    await Promise.allSettled(cars.map(async (car) => {
-      const { velocity, distance } = await this.model.startEngine(car.id as number);
-      const time = Math.round(distance / velocity);
-      const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
-      const res = this.view.animationStart(car, screenDistance, time);
-      const { success } = await this.model.driveEngine(car.id as number);
-      console.log(success);
-      if (success) {
-        window.cancelAnimationFrame(res);
-        winners.push(car.id as number);
-      }
-      this.view.animationEnd(success);
-      if (winners.length === 1) {
-        winner.id = car.id as number;
-        winner.wins = 1;
-        winner.time = time;
-        this.view.drawPopUp({
-          id: winner.id,
-          name: car.name,
-          color: car.color,
-          wins: winner.wins,
-          time: winner.time,
-        });
-      }
-    }));
-    const winnertoShow = await this.settleWinner(winner);
-    console.log(winnertoShow);
+  async handleRace(page: number, limit: number) {
+    // const winners: number[] = [];
+    // const winner: WinnerData = {} as WinnerData;
+    const { cars } = await this.model.getCars(page, limit);
+    const allCarsStartPromises = await this.model.turnAllToStart(cars);
+    const allCarsStartData = await Promise.all(allCarsStartPromises);
+    console.log(allCarsStartData);
+    const min = Math.min(...allCarsStartData.map((item) => item.velocity));
+    const winner = allCarsStartData.filter((item) => item.velocity === min)[0];
+    console.log(winner);
+    await Promise.all(
+      allCarsStartData.map(async (car) => {
+        this.view.animationStart(car.id, car.velocity, car.distance);
+        const { success } = await this.model.driveEngine(car.id as number);
+        this.view.animationEnd(success);
+        if (success) {
+          this.view.drawPopUp({
+            id: car.id,
+            wins: 1,
+            time: Math.round(car.distance / car.velocity),
+          });
+        }
+      }),
+    );
+    const allCarsStopData = await Promise.any(allCarsStartData);
+    console.log(allCarsStopData);
+    // const allCarsDrivePromises = await this.model.turnAllToDrive(cars);
+    // allCarsStopData.map(async (promise) => {
+    //   const success = promise.then((res: { json: () => string; }) => res.json());
+    //   console.log(success);
+    //   if (success) {
+    //     this.view.animationEnd(success);
+    //   }
+    // });
+    // await Promise.all(cars.map(async (car) => {
+    //   const promise = await this.model.startEngine(car.id as number);
+    //   const { velocity, distance } = await Promise.resolve(promise);
+    //   const time = Math.round(distance / velocity);
+    //   const screenDistance = Math.floor(getDistance(car.carImgWrapper, car.carFlag) + 70);
+    //   const res = this.view.animationStart(car, screenDistance, time);
+    //   const { success } = await this.model.driveEngine(car.id as number);
+    //   console.log(success);
+    //   if (success) {
+    //     window.cancelAnimationFrame(res);
+    //     winners.push(car.id as number);
+    //   }
+    //   this.view.animationEnd(success);
+    //   if (winners.length !== 0 && winners.length === 1 && success) {
+    //     winner.id = car.id as number;
+    //     winner.wins = 1;
+    //     winner.time = time;
+    //     this.view.drawPopUp({
+    //       id: winner.id,
+    //       name: car.name,
+    //       color: car.color,
+    //       wins: winner.wins,
+    //       time: winner.time,
+    //     });
+    //   }
+    // }));
+    // const winnertoShow = await this.settleWinner(winner);
+    // this.updateWinners();
+    // console.log(winnertoShow);
   }
 
   async handleGetWinners(page: number, limit: number) {
@@ -159,5 +193,27 @@ export class Controller {
   private async updateGarage() {
     const { cars, carsCounter } = await this.model.getCars();
     this.view.updateGarageView(cars, carsCounter);
+  }
+
+  private async updateWinners() {
+    const { winners, winnersCounter } = await this.model.getWinners();
+    const winnersToDraw: WinnerInterface [] = await this.makeWinners(winners);
+    this.view.updateWinnersView(winnersToDraw, winnersCounter);
+  }
+
+  async handleShowWinnersAtPage(page: number, limit: number, sort: string) {
+    const { winners, winnersCounter } = await this.model.getWinners(page, limit, sort);
+    const winnersToDraw: WinnerInterface [] = await this.makeWinners(winners);
+    this.view.updateWinnersView(winnersToDraw, winnersCounter);
+  }
+
+  async handleSort(page: number, limit: number, sortStatus: string) {
+    const { winners, winnersCounter } = await this.model.getWinners(
+      page,
+      limit,
+      sortStatus,
+    );
+    const winnersToDraw: WinnerInterface [] = await this.makeWinners(winners);
+    this.view.updateWinnersView(winnersToDraw, winnersCounter);
   }
 }
