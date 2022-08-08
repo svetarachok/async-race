@@ -107,6 +107,19 @@ export class CarModel {
     return data;
   }
 
+  async turnAllToStop(cars: CarInterface []) {
+    const data = cars.map(async (car: CarInterface) => {
+      const id: number = car.id as number;
+      const { velocity, distance }: {
+        velocity: number,
+        distance: number,
+      } = await this.stopEngine(id);
+      const obj = { id, velocity, distance };
+      return obj;
+    });
+    return data;
+  }
+
   async getWinners(page?: number, limit?: number, sort?: string, order?: string):
   Promise<{ winners: WinnerData[]; winnersCounter: string }> {
     const winnersData = await fetch(`${URL}${Paths.winners}?_page=${page}&_limit=${limit}&_sort=${sort}&_order=${order}`);

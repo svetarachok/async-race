@@ -97,6 +97,8 @@ export class GaragePageUI {
 
   static resID: number = 0;
 
+  static flag: boolean = false;
+
   constructor() {
     this.header = this.createElement('header', 'header');
     this.garageBtn = this.createElement('button', 'btn', 'garage-page-btn');
@@ -226,10 +228,13 @@ export class GaragePageUI {
   }
 
   drawPopUp(winner: WinnerData) {
-    const { id } = winner;
-    const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
-    this.popUp.textContent = `${car.name} went first (${winner.time / 1000}s)`;
-    this.elem.append(this.popUp);
+    if (!GaragePageUI.flag) {
+      const { id } = winner;
+      const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
+      this.popUp.textContent = `${car.name} went first (${winner.time / 1000}s)`;
+      this.elem.append(this.popUp);
+    }
+    GaragePageUI.flag = true;
   }
 
   public updateGarageView(cars: CarInterface[], carsCounter: string) {
@@ -420,21 +425,26 @@ export class GaragePageUI {
       this.raceBtn.disabled = true;
       handler(pageNumber, limit);
       this.resetBtn.disabled = false;
+      GaragePageUI.flag = false;
     });
+  }
+
+  public listenReset(handler: (page: number, limit: number) => void) {
     this.resetBtn.addEventListener('click', () => {
       this.raceBtn.disabled = false;
-      // cars.forEach((car) => {
-      //   this.returnToStart(0, car);
-      // });
+      const page: string = this.pageTitle.textContent as string;
+      const pageNumber: number = Number(page.split(' ')[1] as string);
+      const limit = carsPerPage;
+      handler(pageNumber, limit);
       this.popUp.remove();
       this.resetBtn.disabled = true;
     });
   }
 
-  public returnToStart(velocity: number, car: CarUIInteface) {
+  public returnToStart(id: number, velocity: number) {
+    const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
     const carImg = car.carImgWrapper;
     carImg.style.transform = `translateX(${velocity}px)`;
-    return car;
   }
 
   public listenWinPages(handler: (page: number, limit: number, sort: string) => void) {

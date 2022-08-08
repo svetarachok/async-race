@@ -1,7 +1,7 @@
 import { CarModel } from '../model/Model';
 import { GaragePageUI } from '../view/GaragePageUI';
 import {
-  CarInterface, CarUIInteface, WinnerInterface, WinnerData,
+  CarInterface, WinnerInterface, WinnerData,
 } from '../model/ts-interfaces';
 import { carsPerPage } from '../components/constants';
 // import { once } from '../components/utils';
@@ -28,6 +28,7 @@ export class Controller {
     this.handleTimeSort = this.handleTimeSort.bind(this);
     this.makeWinners = this.makeWinners.bind(this);
     this.handleShowWinnersAtPage = this.handleShowWinnersAtPage.bind(this);
+    this.handleReset = this.handleReset.bind(this);
     this.view.header.append(this.view.garageBtn, this.view.winnersBtn);
     document.body.append(this.view.header);
     const { cars, carsCounter } = await this.model.getCars(1, carsPerPage);
@@ -56,6 +57,7 @@ export class Controller {
     this.view.listenStart(this.handleStart);
     this.view.listenStop(this.handleStop);
     this.view.listenRace(this.handleRace);
+    this.view.listenReset(this.handleReset);
     this.view.listenWinPages(this.handleShowWinnersAtPage);
     this.view.listenWins(this.handleWinsSort);
     this.view.listenTimeSort(this.handleTimeSort);
@@ -94,8 +96,7 @@ export class Controller {
     const { cars, carsCounter } = await this.model.getCars(page);
     this.view.updateGarageView(cars, carsCounter);
     await this.model.deleteWinner(Number(id));
-    // const { winners, winnersCounter } = await this.model.getWinners(page, 10);
-    // this.view.updateWinnersView(winners, winnersCounter);
+    this.updateWinners();
   }
 
   async handleShowCarsAtPage(page: number, limit: number) {
@@ -111,9 +112,9 @@ export class Controller {
     // if (!success) window.cancelAnimationFrame(res);
   }
 
-  async handleStop(id: number, car: CarUIInteface) {
+  async handleStop(id: number) {
     const { velocity } = await this.model.stopEngine(id);
-    this.view.returnToStart(velocity, car);
+    this.view.returnToStart(id, velocity);
   }
 
   async handleRace(page: number, limit: number) {
@@ -149,6 +150,15 @@ export class Controller {
     );
     await this.settleWinner(winner);
     this.updateWinners();
+  }
+
+  async handleReset(page: number, limit: number) {
+    const { cars } = await this.model.getCars(page, limit);
+    const allCarsStopPromises = await this.model.turnAllToStop(cars);
+    const allCarsStopData = await Promise.all(allCarsStopPromises);
+    await Promise.all(
+      allCarsStopData.map((car) => this.view.returnToStart(car.id, car.velocity)),
+    );
   }
 
   async handleGetWinners(page: number, limit: number) {
