@@ -7,6 +7,12 @@ import { getRandomCarsData, getDistance } from '../components/utils';
 import { WinnersUI } from './WinnersUI';
 
 export class GaragePageUI {
+  header: HTMLElement;
+
+  garageBtn: HTMLElement;
+
+  winnersBtn: HTMLElement;
+
   elem: HTMLElement;
 
   carsTrack: HTMLElement;
@@ -92,6 +98,11 @@ export class GaragePageUI {
   static resID: number = 0;
 
   constructor() {
+    this.header = this.createElement('header', 'header');
+    this.garageBtn = this.createElement('button', 'btn', 'garage-page-btn');
+    this.garageBtn.textContent = 'To Garage';
+    this.winnersBtn = this.createElement('button', 'btn', 'winners-page-btn');
+    this.winnersBtn.textContent = 'To Winners';
     this.elem = this.createElement('main', 'main');
     this.elem.classList.add('main');
     this.elem.id = 'garage';
@@ -163,6 +174,8 @@ export class GaragePageUI {
     this.tabHeaderCellName.textContent = 'Name';
     this.tabHeaderCellWins.textContent = 'Wins ';
     this.tabHeaderCellTime.textContent = 'Best time (seconds) ';
+    this.tabPrevBtn.textContent = 'Prev';
+    this.tabNextBtn.textContent = 'Next';
     this.tabHeaderRow.append(
       this.tabHeaderCellNum,
       this.tabHeaderCellImg,
@@ -173,7 +186,9 @@ export class GaragePageUI {
     this.tabHeader.append(this.tabHeaderRow);
     this.winTable.append(this.tabHeader, this.tabBody);
     this.winWrapper.append(this.winTable);
+    this.tabPagination.append(this.tabPrevBtn, this.tabNextBtn);
     this.winners.append(this.winHeader, this.winPageTitle, this.winWrapper, this.tabPagination);
+    this.winners.style.display = 'none';
     return this.winners;
   }
 
@@ -257,8 +272,9 @@ export class GaragePageUI {
       GaragePageUI.winnersStorage.push(winnerTemplate);
       this.tabBody.append(winnerTemplate.draw());
     });
-    const winnersNumber = Number(this.winPageTitle.innerHTML.split(' ')[1].slice(1, -1));
+    const winnersNumber = Number(this.winHeader.innerHTML.split(' ')[1].slice(1, -1));
     if (winnersNumber > 10 && GaragePageUI.winPageNumber < Math.ceil(winnersNumber / 10)) {
+      console.log(GaragePageUI.winPageNumber);
       this.tabNextBtn.disabled = false;
     } else {
       this.tabNextBtn.disabled = true;
@@ -385,10 +401,6 @@ export class GaragePageUI {
     if (!success) window.cancelAnimationFrame(GaragePageUI.resID);
   }
 
-  // public animationRace(obj: { id: number, velocity: number, distance: number }[]) {
-
-  // }
-
   public listenStop(handler: (id: number, car: CarUIInteface) => void) {
     this.carsTrack.addEventListener('click', (event: Event) => {
       const target: HTMLButtonElement = <HTMLButtonElement>event.target;
@@ -458,8 +470,6 @@ export class GaragePageUI {
         this.tabHeaderCellWins.classList.add('asc-sorted');
         this.tabHeaderCellWins.innerText = 'Wins 🠕';
       }
-      console.log(target);
-      console.log(handler);
     });
   }
 }

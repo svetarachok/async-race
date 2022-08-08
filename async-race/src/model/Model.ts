@@ -88,7 +88,10 @@ export class CarModel {
     this.startEngine = this.startEngine.bind(this);
     const data = cars.map(async (car: CarInterface) => {
       const id: number = car.id as number;
-      const { velocity, distance } = await this.startEngine(id);
+      const { velocity, distance }: {
+        velocity: number,
+        distance: number,
+      } = await this.startEngine(id);
       const obj = { id, velocity, distance };
       return obj;
     });
