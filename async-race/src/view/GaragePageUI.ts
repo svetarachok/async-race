@@ -401,8 +401,10 @@ export class GaragePageUI {
     return GaragePageUI.resID;
   }
 
-  public animationEnd(success: boolean) {
+  public animationEnd(success: boolean, id: number) {
     if (!success) window.cancelAnimationFrame(GaragePageUI.resID);
+    const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
+    car.startBtn.disabled = false;
   }
 
   public listenStop(handler: (id: number, car: CarUIInteface) => void) {
@@ -446,6 +448,7 @@ export class GaragePageUI {
   public returnToStart(id: number, velocity: number) {
     const car = GaragePageUI.carStorage.filter((carItem) => carItem.id === id)[0];
     const carImg = car.carImgWrapper;
+    cancelAnimationFrame(GaragePageUI.resID);
     carImg.style.transform = `translateX(${velocity}px)`;
     return carImg.style;
   }

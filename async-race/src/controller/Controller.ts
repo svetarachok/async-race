@@ -108,12 +108,13 @@ export class Controller {
     const { velocity, distance } = await this.model.startEngine(id);
     this.view.animationStart(id, velocity, distance);
     const { success } = await this.model.driveEngine(id);
-    this.view.animationEnd(success);
+    this.view.animationEnd(success, id);
     // if (!success) window.cancelAnimationFrame(res);
   }
 
   async handleStop(id: number) {
     const { velocity } = await this.model.stopEngine(id);
+    console.log(velocity);
     this.view.returnToStart(id, velocity);
   }
 
@@ -131,7 +132,7 @@ export class Controller {
       allCarsStartData.map(async (car) => {
         this.view.animationStart(car.id, car.velocity, car.distance);
         const { success } = await this.model.driveEngine(car.id as number);
-        this.view.animationEnd(success);
+        this.view.animationEnd(success, car.id);
         if (success) {
           winners.push(car);
           const time = Math.round(car.distance / car.velocity);
